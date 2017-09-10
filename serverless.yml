@@ -3,6 +3,8 @@ service: serverlessly
 provider:
   name: aws
   runtime: nodejs6.10
+  stage: ${file(config.json):STAGE}
+  region: ${file(config.json):REGION}
 
 functions:
   create:
@@ -23,4 +25,4 @@ resources:
     ServerlesslyRedirectS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: serverlessly-redirects
+        BucketName: ${file(config.json):BUCKET}
