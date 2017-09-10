@@ -1,0 +1,26 @@
+service: serverlessly
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+
+functions:
+  create:
+    handler: create/handler.handle
+    events:
+      - http:
+          path: /
+          method: get
+  store:
+    handler: store/handler.handle
+    events:
+      - http:
+          path: /
+          method: post
+
+resources:
+  Resources:
+    ServerlesslyRedirectS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: serverlessly-redirects

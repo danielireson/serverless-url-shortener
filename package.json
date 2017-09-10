@@ -1,0 +1,9 @@
+{
+  "name": "serverlessly",
+  "version": "1.0.0",
+  "author": "Daniel Ireson",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.112.0"
+  }
+}
