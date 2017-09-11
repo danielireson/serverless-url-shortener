@@ -5,6 +5,11 @@ provider:
   runtime: nodejs6.10
   stage: ${file(config.json):STAGE}
   region: ${file(config.json):REGION}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+      Resource: "arn:aws:s3:::${file(config.json):BUCKET}/*"
 
 functions:
   create:
