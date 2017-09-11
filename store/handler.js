@@ -29,6 +29,18 @@ module.exports.handle = (event, context, callback) => {
     })
 }
 
+function validate (longUrl = '') {
+  let parsedUrl = url.parse(longUrl)
+  if (parsedUrl.protocol === null || parsedUrl.host === null) {
+    return Promise.reject({
+      statusCode: 400,
+      message: 'URL is invalid'
+    })
+  }
+
+  return Promise.resolve(longUrl)
+}
+
 function getShortUrl () {
   return new Promise(function (resolve, reject) {
     let shortUrl = generateShortUrl()
@@ -76,17 +88,5 @@ function buildResponse (statusCode, message) {
     body: JSON.stringify({
       message: message,
     }) 
-  }
-}
-
-function validate (str = '') {
-  let urlObj = url.parse(str)
-  if (urlObj.protocol !== null && urlObj.host !== null) {
-    return Promise.resolve(str)
-  } else {
-    return Promise.reject({
-      statusCode: 400,
-      message: 'Long URL is invalid'
-    })
   }
 }
