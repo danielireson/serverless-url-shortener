@@ -10,14 +10,14 @@ const config = require('../config.json')
 module.exports.handle = (event, context, callback) => {
   validate(event.url)
     .then(function () {
-      return getShortUrl()
+      return getPath()
     })
-    .then(function (shortUrl) {
-      let redirect = buildRedirect(shortUrl, event.url)
+    .then(function (path) {
+      let redirect = buildRedirect(path, event.url)
       return saveRedirect(redirect)
     })
-    .then(function (shortUrl) {
-      let response = buildResponse(200, 'URL successfully shortened', shortUrl)
+    .then(function (path) {
+      let response = buildResponse(200, 'URL successfully shortened', path)
       return Promise.resolve(response)
     })
     .catch(function (err) {
@@ -41,30 +41,30 @@ function validate (longUrl = '') {
   return Promise.resolve(longUrl)
 }
 
-function getShortUrl () {
+function getPath () {
   return new Promise(function (resolve, reject) {
-    let shortUrl = generateShortUrl()
-    isShortUrlFree(shortUrl)
+    let path = generatePath()
+    isPathFree(path)
       .then(function (isFree) {
-        return isFree ? resolve(shortUrl) : resolve(getShortUrl())
+        return isFree ? resolve(path) : resolve(getPath())
       })
   })
 }
 
-function generateShortUrl (shortUrl = '') {
+function generatePath (path = '') {
   let characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   let position = Math.floor(Math.random() * characters.length)
   let character = characters.charAt(position)
 
-  if (shortUrl.length === 7) {
-    return shortUrl
+  if (path.length === 7) {
+    return path
   }
 
-  return generateShortUrl(shortUrl + character)
+  return generatePath(path + character)
 }
 
-function isShortUrlFree (shortUrl) {
-  return S3.headObject(buildRedirect(shortUrl)).promise()
+function isPathFree (path) {
+  return S3.headObject(buildRedirect(path)).promise()
     .then(() => Promise.resolve(false))
     .catch(() => Promise.resolve(true))
 }
@@ -74,10 +74,10 @@ function saveRedirect (redirect) {
     .then(() => Promise.resolve(redirect['Key']))
 }
 
-function buildRedirect (shortUrl, longUrl = false) {
+function buildRedirect (path, longUrl = false) {
   let redirect = {
     'Bucket': config.BUCKET,
-    'Key': shortUrl,
+    'Key': path,
   }
 
   if (longUrl) {
@@ -87,22 +87,22 @@ function buildRedirect (shortUrl, longUrl = false) {
   return redirect
 }
 
-function buildRedirectUrl (shortUrl) {
+function buildRedirectUrl (path) {
   let baseUrl = `https://${config.BUCKET}.s3.${config.REGION}.amazonaws.com/`
   
   if ('BASE_URL' in config && config['BASE_URL'] !== '') {
     baseUrl = config['BASE_URL']
   }
 
-  return baseUrl + shortUrl
+  return baseUrl + path
 }
 
-function buildResponse (statusCode, message, shortUrl = false) {
+function buildResponse (statusCode, message, path = false) {
   let body = { message }
 
-  if (shortUrl) {
-    body['path'] = shortUrl
-    body['shortUrl'] = buildRedirectUrl(shortUrl) 
+  if (path) {
+    body['path'] = path
+    body['url'] = buildRedirectUrl(path)
   }
 
   return {
