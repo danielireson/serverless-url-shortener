@@ -2,8 +2,6 @@ service: serverless-url-shortener
 
 provider:
   name: aws
-  apiKeys:
-    - apiKey
   runtime: nodejs6.10
   stage: ${file(config.json):STAGE}
   region: ${file(config.json):REGION}
@@ -20,7 +18,6 @@ functions:
       - http:
           path: /
           method: post
-          private: true
 
 resources:
   Resources:
