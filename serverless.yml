@@ -14,14 +14,8 @@ provider:
       Resource: "arn:aws:s3:::${file(config.json):BUCKET}/*"
 
 functions:
-  create:
-    handler: create/handler.handle
-    events:
-      - http:
-          path: /
-          method: get
   store:
-    handler: store/handler.handle
+    handler: api/store.handle
     events:
       - http:
           path: /
