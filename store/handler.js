@@ -14,10 +14,10 @@ module.exports.handle = (event, context, callback) => {
     })
     .then(function (shortUrl) {
       let redirect = buildRedirect(shortUrl, event.url)
-      return S3.putObject(redirect).promise()
+      return saveRedirect(redirect)
     })
-    .then(function () {
-      let response = buildResponse(200, 'URL successfully shortened')
+    .then(function (shortUrl) {
+      let response = buildResponse(200, 'URL successfully shortened', shortUrl)
       return Promise.resolve(response)
     })
     .catch(function (err) {
@@ -69,6 +69,11 @@ function isShortUrlFree (shortUrl) {
     .catch(() => Promise.resolve(true))
 }
 
+function saveRedirect (redirect) {
+  return S3.putObject(redirect).promise()
+    .then(() => Promise.resolve(redirect['Key']))
+}
+
 function buildRedirect (shortUrl, longUrl = false) {
   let redirect = {
     'Bucket': config.BUCKET,
@@ -82,11 +87,26 @@ function buildRedirect (shortUrl, longUrl = false) {
   return redirect
 }
 
-function buildResponse (statusCode, message) {
+function buildRedirectUrl (shortUrl) {
+  let baseUrl = `https://${config.BUCKET}.s3.${config.REGION}.amazonaws.com/`
+  
+  if ('BASE_URL' in config && config['BASE_URL'] !== '') {
+    baseUrl = config['BASE_URL']
+  }
+
+  return baseUrl + shortUrl
+}
+
+function buildResponse (statusCode, message, shortUrl = false) {
+  let body = { message }
+
+  if (shortUrl) {
+    body['path'] = shortUrl
+    body['shortUrl'] = buildRedirectUrl(shortUrl) 
+  }
+
   return {
     statusCode: statusCode,
-    body: JSON.stringify({
-      message: message,
-    }) 
+    body: JSON.stringify(body)
   }
 }
