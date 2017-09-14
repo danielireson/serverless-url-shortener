@@ -1,4 +1,4 @@
-service: serverlessly
+service: serverless-url-shortener
 
 provider:
   name: aws
