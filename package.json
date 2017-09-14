@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "author": "Daniel Ireson",
   "license": "MIT",
+  "scripts": {
+    "deploy:static": "node scripts/deploy-static.js",
+    "deploy:serverless": "serverless deploy",
+    "start": "npm run deploy:serverless && npm run deploy:static"
+  },
   "dependencies": {
     "aws-sdk": "^2.112.0"
   }
