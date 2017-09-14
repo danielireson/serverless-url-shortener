@@ -8,3 +8,4 @@ jspm_packages
 # user
 config.json
 project.txt
+static/index.html

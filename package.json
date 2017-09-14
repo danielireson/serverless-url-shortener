@@ -4,9 +4,10 @@
   "author": "Daniel Ireson",
   "license": "MIT",
   "scripts": {
+    "build": "node scripts/build-template.js",
     "deploy:static": "node scripts/deploy-static.js",
     "deploy:serverless": "serverless deploy",
-    "start": "npm run deploy:serverless && npm run deploy:static"
+    "start": "npm run build && npm run deploy:serverless && npm run deploy:static"
   },
   "dependencies": {
     "aws-sdk": "^2.112.0"
