@@ -2,5 +2,6 @@
   "BUCKET": "",
   "REGION": "",
   "STAGE": "",
-  "API_KEY": ""
+  "API_KEY": "",
+  "BASE_URL": ""
 }
