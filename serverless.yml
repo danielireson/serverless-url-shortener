@@ -34,3 +34,4 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${file(config.json):BUCKET}
+        AccessControl: PublicRead
