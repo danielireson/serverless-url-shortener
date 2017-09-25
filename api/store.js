@@ -8,6 +8,8 @@ const S3 = new AWS.S3()
 const config = require('../config.json')
 
 module.exports.handle = (event, context, callback) => {
+  console.log(event)
+
   validate(event.url)
     .then(function () {
       return getPath()
@@ -106,6 +108,9 @@ function buildResponse (statusCode, message, path = false) {
   }
 
   return {
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
     statusCode: statusCode,
     body: JSON.stringify(body)
   }
