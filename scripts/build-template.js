@@ -8,6 +8,7 @@ const config = require('../config.json')
 try {
   let readPath = path.resolve(__dirname, '../static/template.html')
   let template = fs.readFileSync(readPath).toString()
+  template = template.replace('INSERT_APP_NAME', config['APP_NAME'])
   template = template.replace('INSERT_API_URL', config['API_URL'])
 
   let writePath = path.resolve(__dirname, '../static/index.html')

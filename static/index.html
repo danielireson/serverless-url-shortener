@@ -3,28 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <title>Serverless url shortener</title>
+  <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
 </head>
 <style>
+  * {
+    font-family: 'Gloria Hallelujah', cursive;
+  }
+
   html, body {
     align-items: center;
-    background: #ecf0f1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     height: 100vh;
+    justify-content: center;
     width: 100%;
+  }
+
+  h1 {
+    margin: 0;
+    transform: rotate(1deg);
+  }
+
+  h2 {
+    background: #e74c3c;
+    border: solid 2px black;
+    border-radius: 5px;
+    color: white;
+    font-size: 1em;
+    padding: 0 0.5em;
   }
 
   form {
     align-items: center;
     display: flex;
     flex-direction: column;
-    width: 75%;
+    width: 100%;
   }
 
   input {
+    background: white;
+    border: none;
     box-sizing: border-box;
     font-size: 1em;
+    outline: none;
   }
 
   input[type=text] {
@@ -33,11 +54,22 @@
     text-align: center;
     width: 100%;
   }
+
+  input[type=submit] {
+    background: #2ecc71;
+    border: solid 2px black;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transform: rotate(-1deg);
+  }
 </style>
 <body>
+  <h1>Serverless shortener</h1>
+  <h2 class="message success">asd</h2>
   <form action="http://testurl.com">
-    <input type="text" placeholder="Enter URL to shorten...">
-    <input type="submit">    
+    <input type="text" placeholder="Please enter a link to shorten" autofocus>
+    <input class="success" type="submit" value="Shorten link">    
   </form>
 </body>
 </html>
