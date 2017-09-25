@@ -8,7 +8,7 @@
 </head>
 <style>
   * {
-    font-family: 'Gloria Hallelujah', cursive;
+    font-family: sans-serif;
   }
 
   html, body {
@@ -21,6 +21,7 @@
   }
 
   h1 {
+    font-family: 'Gloria Hallelujah', cursive;
     margin: 0;
     transform: rotate(1deg);
   }
@@ -30,7 +31,9 @@
     border-radius: 5px;
     display: none;
     font-size: 1em;
-    padding: 0 0.5em;
+    font-weight: normal;
+    padding: 0.5em;
+    transform: rotate(-1deg);
   }
 
   form {
@@ -49,9 +52,8 @@
   }
 
   input[type=url] {
-    font-family: sans-serif;
     margin-bottom: 1em;
-    padding: 1em;
+    padding: 0.5em;
     text-align: center;
     width: 100%;
   }
@@ -60,11 +62,17 @@
     border: solid 2px black;
     border-radius: 5px;
     cursor: pointer;
+    padding: 0.5em;
     transform: rotate(-1deg);
   }
 
   .error {
     background: #e74c3c;
+    color: white;
+  }
+
+  .warning {
+    background: #f39c12;
     color: white;
   }
 
@@ -77,8 +85,40 @@
   <h1>INSERT_APP_NAME</h1>
   <h2 id="message"></h2>
   <form action="INSERT_API_URL">
-    <input type="url" placeholder="Please enter a link to shorten" required autofocus>
-    <input type="submit" value="Shorten link">    
+    <input name="url" type="url" placeholder="Please enter a link to shorten" autocomplete="off" required autofocus>
+    <input type="submit" value="shorten link">    
   </form>
 </body>
+<script>
+  $('form').submit(function (event) {
+    event.preventDefault()
+    addMessage('...', 'warning')
+    shortenLink(event.target.action, event.target.url.value)
+  })
+
+  function shortenLink (apiUrl, longUrl) {
+    $.ajax(apiUrl, {
+      type : 'POST', 
+      data: JSON.stringify({url: longUrl})})
+      .done(function (responseJSON) {
+        var shortUrl = getFullShortLink(responseJSON.path)
+        addMessage(shortUrl)
+      })
+      .fail(function (data) {
+        if (data.status === 400) {
+          addMessage(data.responseJSON.message, 'error')
+        } else {
+          addMessage('an unexpected error occurred', 'error')
+        }
+      })
+  }
+
+  function addMessage (text, css = '') {
+    $('#message').text(text).attr('class', '').addClass(css).show()
+  }
+
+  function getFullShortLink (path) {
+    return window.location.protocol + '//' + window.location.host + '/' + path
+  }
+</script>
 </html>
