@@ -8,14 +8,13 @@ const S3 = new AWS.S3()
 const config = require('../config.json')
 
 module.exports.handle = (event, context, callback) => {
-  console.log(event)
-
-  validate(event.url)
+  let longUrl = JSON.parse(event.body).url || ''
+  validate(longUrl)
     .then(function () {
       return getPath()
     })
     .then(function (path) {
-      let redirect = buildRedirect(path, event.url)
+      let redirect = buildRedirect(path, longUrl)
       return saveRedirect(redirect)
     })
     .then(function (path) {
@@ -31,7 +30,14 @@ module.exports.handle = (event, context, callback) => {
     })
 }
 
-function validate (longUrl = '') {
+function validate (longUrl) {
+  if (longUrl === '') {
+    return Promise.reject({
+      statusCode: 400,
+      message: 'URL is required'
+    })
+  }
+
   let parsedUrl = url.parse(longUrl)
   if (parsedUrl.protocol === null || parsedUrl.host === null) {
     return Promise.reject({
