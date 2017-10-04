@@ -26,3 +26,17 @@ resources:
       Properties:
         BucketName: ${file(config.json):BUCKET}
         AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+    ServerlesslyRedirectS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: ${file(config.json):BUCKET}
+        PolicyDocument:
+          Statement:
+          - Action:
+            - s3:GetObject
+            Effect: Allow
+            Resource:
+            - arn:aws:s3:::${file(config.json):BUCKET}/*
+            Principal: "*"

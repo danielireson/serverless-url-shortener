@@ -12,7 +12,7 @@ exec(command, function (error, stdout, stderr) {
     console.error(stderr)
   } else {
     console.log('Deploy static success')
-    console.log(`https://${config.BUCKET}.s3.${config.REGION}.amazonaws.com/`)
+    console.log(`http://${config.BUCKET}.s3-website-${config.REGION}.amazonaws.com/`)
     console.log('---')
     console.log(stdout)
   }
