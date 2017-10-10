@@ -114,7 +114,8 @@
       })
   }
 
-  function addMessage (text, css = '') {
+  function addMessage (text, css) {
+    css = css || ''
     $('#message').text(text).attr('class', '').addClass(css).show()
   }
 
