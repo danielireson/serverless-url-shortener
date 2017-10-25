@@ -15,15 +15,15 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     justify-content: center;
     width: 100%;
   }
 
   h1 {
     font-family: 'Gloria Hallelujah', cursive;
-    margin: 0;
-    transform: rotate(1deg);
+    margin: 0 0 10px 0;
+    transform: rotate(0.5deg);
   }
 
   h2 {
@@ -32,8 +32,9 @@
     display: none;
     font-size: 1em;
     font-weight: normal;
-    padding: 0.5em;
-    transform: rotate(-1deg);
+    padding: 10px;
+    margin: 0 0 20px 0;
+    transform: rotate(-0.5deg);
   }
 
   form {
@@ -53,8 +54,8 @@
 
   input[type=url] {
     border-bottom: dashed 2px black;
-    margin-bottom: 1em;
-    padding: 0.5em;
+    margin-bottom: 2em;
+    padding: 10px;
     text-align: center;
     width: 60%;
   }
@@ -63,8 +64,7 @@
     border: solid 2px black;
     border-radius: 5px;
     cursor: pointer;
-    padding: 0.5em;
-    transform: rotate(-1deg);
+    padding: 10px;
   }
 
   .error {
