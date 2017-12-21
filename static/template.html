@@ -3,97 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <title>Serverless url shortener</title>
-  <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <link href="paper.min.css" rel="stylesheet">
+  <script src="jquery-3.2.1.min.js"></script>
 </head>
 <style>
   * {
-    font-family: sans-serif;
-  }
-
-  html, body {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    justify-content: center;
-    width: 100%;
-  }
-
-  h1 {
-    font-family: 'Gloria Hallelujah', cursive;
-    margin: 0 0 10px 0;
-    transform: rotate(0.5deg);
-  }
-
-  h2 {
-    border: solid 2px black;
-    border-radius: 5px;
-    display: none;
-    font-size: 1em;
-    font-weight: normal;
-    padding: 10px;
-    margin: 0 0 20px 0;
-    transform: rotate(-0.5deg);
-  }
-
-  form {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  input {
-    background: white;
-    border: none;
-    box-sizing: border-box;
-    font-size: 1em;
-    outline: none;
-  }
-
-  input[type=url] {
-    border-bottom: dashed 2px black;
-    margin-bottom: 2em;
-    padding: 10px;
     text-align: center;
-    width: 60%;
   }
 
-  input[type=submit] {
-    border: solid 2px black;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 10px;
-  }
-
-  .error {
-    background: #e74c3c;
-    color: white;
-  }
-
-  .warning {
-    background: #f39c12;
-    color: white;
-  }
-
-  .success, input:valid + input[type=submit] {
-    background: #2ecc71;
-    color: white;
+  #message {
+    display: none;
   }
 </style>
 <body>
-  <h1>INSERT_APP_NAME</h1>
-  <h2 id="message"></h2>
-  <form action="INSERT_API_URL">
-    <input name="url" type="url" placeholder="Please enter a link to shorten" autocomplete="off" required autofocus>
-    <input type="submit" value="shorten link">    
-  </form>
+  <div class="row flex-center">
+    <div class="col-8 col">
+      <h2>INSERT_APP_NAME</h2>
+      <form action="INSERT_API_URL">
+        <div class="form-group">
+          <label for="url">Enter URL to shorten</label>
+          <input class="input-block" name="url" type="url" id="url"  autocomplete="off" required>
+        </div>
+        <div id="message" class="alert alert-primary"></div>
+        <input class="paper-btn" type="submit" value="shorten my link">
+      </form>      
+    </div>
+  </div>
 </body>
 <script>
   $('form').submit(function (event) {
     event.preventDefault()
-    addMessage('...', 'warning')
+    addMessage('...')
     shortenLink(event.target.action, event.target.url.value)
   })
 
@@ -107,16 +47,15 @@
       })
       .fail(function (data) {
         if (data.status === 400) {
-          addMessage(data.responseJSON.message, 'error')
+          addMessage(data.responseJSON.message)
         } else {
-          addMessage('an unexpected error occurred', 'error')
+          addMessage('an unexpected error occurred')
         }
       })
   }
 
-  function addMessage (text, css) {
-    css = css || ''
-    $('#message').text(text).attr('class', '').addClass(css).show()
+  function addMessage (text) {
+    $('#message').text(text).show()
   }
 
   function getFullShortLink (path) {
