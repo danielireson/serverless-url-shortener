@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Serverless url shortener</title>
   <link href="paper.min.css" rel="stylesheet">
-  <script src="jquery-3.2.1.min.js"></script>
 </head>
 <style>
   * {
@@ -32,33 +31,34 @@
       </p>
     </div>
   </div>
+  <script src="jquery-3.2.1.min.js"></script>
+  <script>
+    $('form').submit(function (event) {
+      event.preventDefault()
+      addMessage('...')
+      shortenLink(event.target.action, event.target.url.value)
+    })
+
+    function shortenLink (apiUrl, longUrl) {
+      $.ajax(apiUrl, {
+        type : 'POST', 
+        data: JSON.stringify({url: longUrl})})
+        .done(function (responseJSON) {
+          var shortUrl = window.location.protocol + '//' + window.location.host + '/' + responseJSON.path
+          addMessage(shortUrl)
+        })
+        .fail(function (data) {
+          if (data.status === 400) {
+            addMessage(data.responseJSON.message)
+          } else {
+            addMessage('an unexpected error occurred')
+          }
+        })
+    }
+
+    function addMessage (text) {
+      $('#message').text(text).show()
+    }
+  </script>
 </body>
-<script>
-  $('form').submit(function (event) {
-    event.preventDefault()
-    addMessage('...')
-    shortenLink(event.target.action, event.target.url.value)
-  })
-
-  function shortenLink (apiUrl, longUrl) {
-    $.ajax(apiUrl, {
-      type : 'POST', 
-      data: JSON.stringify({url: longUrl})})
-      .done(function (responseJSON) {
-        var shortUrl = window.location.protocol + '//' + window.location.host + '/' + responseJSON.path
-        addMessage(shortUrl)
-      })
-      .fail(function (data) {
-        if (data.status === 400) {
-          addMessage(data.responseJSON.message)
-        } else {
-          addMessage('an unexpected error occurred')
-        }
-      })
-  }
-
-  function addMessage (text) {
-    $('#message').text(text).show()
-  }
-</script>
 </html>
