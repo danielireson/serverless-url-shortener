@@ -42,7 +42,7 @@
       type : 'POST', 
       data: JSON.stringify({url: longUrl})})
       .done(function (responseJSON) {
-        var shortUrl = getFullShortLink(responseJSON.path)
+        var shortUrl = window.location.protocol + '//' + window.location.host + '/' + responseJSON.path
         addMessage(shortUrl)
       })
       .fail(function (data) {
@@ -56,10 +56,6 @@
 
   function addMessage (text) {
     $('#message').text(text).show()
-  }
-
-  function getFullShortLink (path) {
-    return window.location.protocol + '//' + window.location.host + '/' + path
   }
 </script>
 </html>
