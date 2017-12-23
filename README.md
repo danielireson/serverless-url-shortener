@@ -1,5 +1,5 @@
 # Serverless URL Shortener
-A lightweight URL shortener built with the Serverless Framework that uses AWS Lambda, S3 and API Gateway. Amazon S3 is used to host the public website and handle the URL forwarding.
+A lightweight URL shortener built with the Serverless Framework using AWS Lambda and S3. Each URL redirection is stored as an S3 object with the `Website-Redirect-Location` metadata key set to the forwarding web address. AWS Lambda is used to create an API to save these objects. The website is served from the same S3 bucket.
 
 ![Screenshot](readme-screenshot.png)
 
@@ -18,10 +18,13 @@ STAGE | The [AWS stage](http://docs.aws.amazon.com/apigateway/latest/developergu
 API_URL | The URL of the endpoint that forms should be sent to. This is only known after the first deployment, so leave empty for now. | Y
 
 ### Deploy API
-Run `npm run deploy:serverless` to instantiate the necessary resources on AWS. This command will return an endpoint URL that you should add as *API_URL* in *config.json*.
+Run `npm run deploy:serverless` to deploy the API to AWS. The resources defined in *serverless.yml* will be automatically instantiated using CloudFormation. You should copy the URL of the returned endpoint to *API_URL* in *config.json*.
+
+### Build template
+Run `npm run build` to set the form action on the website template to *API_URL* from *config.json*.
 
 ### Deploy website
-Run `npm run build && npm run deploy:static` to deploy the website using AWS CLI. The build run script simply sets the form action to *API_URL* from *config.json*.
+Run `npm run deploy:static` to deploy the website using the AWS CLI.
 
 ## Libraries used
 - [Serverless Framework](https://serverless.com) for project structure and deployment.
