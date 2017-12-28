@@ -74,7 +74,7 @@ function generatePath (path = '') {
 function isPathFree (path) {
   return S3.headObject(buildRedirect(path)).promise()
     .then(() => Promise.resolve(false))
-    .catch(() => Promise.resolve(true))
+    .catch((err) => err.code == 'NotFound' ? Promise.resolve(true) : Promise.reject(err))
 }
 
 function saveRedirect (redirect) {
