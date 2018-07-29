@@ -13,8 +13,10 @@ Create a copy of *config.sample.json* as *config.json* and then customise as app
 Name | Description | Required
 --- | --- | ---
 BUCKET | The S3 bucket name to use. This will form part of the URL shortener website address if you're not using a custom domain. | Y
+S3_PARTITION | The [S3 partition](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html) to use. | Y
 REGION | The [AWS region](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) to deploy to. | Y
 STAGE | The [AWS stage](http://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-deploy-api.html) to deploy to. | Y
+API_ENDPOINT_TYPE | The [API Gateway endpoint type](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-basic-concept.html) to use. | Y
 API_URL | The URL of the endpoint that forms should be sent to. This is only known after the first deployment, so leave empty for now. | Y
 
 ### Deploy API
