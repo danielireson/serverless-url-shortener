@@ -2,6 +2,7 @@ service: serverless-url-shortener
 
 provider:
   name: aws
+  endpointType: ${file(config.json):API_ENDPOINT_TYPE}
   runtime: nodejs6.10
   stage: ${file(config.json):STAGE}
   region: ${file(config.json):REGION}
@@ -9,7 +10,7 @@ provider:
     - Effect: Allow
       Action:
         - s3:PutObject
-      Resource: "arn:aws:s3:::${file(config.json):BUCKET}/*"
+      Resource: "arn:${file(config.json):S3_PARTITION}:s3:::${file(config.json):BUCKET}/*"
 
 functions:
   store:
@@ -39,5 +40,5 @@ resources:
             - s3:GetObject
             Effect: Allow
             Resource:
-            - arn:aws:s3:::${file(config.json):BUCKET}/*
+            - arn:${file(config.json):S3_PARTITION}:s3:::${file(config.json):BUCKET}/*
             Principal: "*"
