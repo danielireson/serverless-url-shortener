@@ -3,7 +3,7 @@ service: serverless-url-shortener
 provider:
   name: aws
   endpointType: ${file(config.json):API_ENDPOINT_TYPE}
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   stage: ${file(config.json):STAGE}
   region: ${file(config.json):REGION}
   iamRoleStatements:
