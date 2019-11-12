@@ -28,6 +28,9 @@ Create a copy of _.env.example_ for each "stage" (e.g. _.env.staging_, _.env.pro
 | SHORT_DOMAIN         | Custom short domain                                                                                                          | Y        |
 | SHORT_HOSTED_ZONE    | AWS Route53 hosted zone ID with the custom short domain                                                                      | Y        |
 | SHORT_DOMAIN_ACM_ARN | AWS Certificate Authority certificate name for short domain                                                                  | Y        |
+| TITLE                | Customize the title of the website and form                                                                                  | N        |
+| CREDIT               | Customize the credit name in the footer                                                                                      | N        |
+| CREDIT_URL           | Customize the credit link in the footer                                                                                      | N        |
 
 ### Deploy API
 
