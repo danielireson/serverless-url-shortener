@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "rm -rf ./build/ && mkdir -p ./build/ && cp -R ./public/ ./build/ && node scripts/build-template.js",
-    "deploy:client": "STAGE={STAGE:-staging} eval $(cat .env.$STAGE) serverless client deploy",
-    "deploy": "STAGE={STAGE:-staging} eval $(cat .env.$STAGE) serverless deploy"
+    "deploy:client": "STAGE=${STAGE:-staging} eval $(cat .env.$STAGE) serverless client deploy -s $STAGE",
+    "deploy": "STAGE=${STAGE:-staging} eval $(cat .env.$STAGE) serverless deploy -s $STAGE"
   },
   "standard": {
     "parser": "babel-eslint",
