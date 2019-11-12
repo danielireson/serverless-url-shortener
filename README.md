@@ -52,6 +52,8 @@ Run `npm run build` to set the form action on the website template to `API_URL` 
 
 Run `npm run deploy:client` to deploy the website using the AWS CLI.
 
+_You can add a `?vanity=` query string parameter to the homepage to specify a vanity name instead of a randomly-generated one. If the name is taken, a random one will be used._
+
 ## Libraries used
 
 - [Serverless Framework](https://serverless.com) for project structure and deployment.
