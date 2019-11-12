@@ -10,6 +10,8 @@
     "start": "npm run build && npm run deploy:serverless && npm run deploy:static"
   },
   "dependencies": {
-    "aws-sdk": "^2.112.0"
+    "aws-sdk": "^2.569.0",
+    "nanoid": "^2.1.6",
+    "nanoid-good": "^1.3.0"
   }
 }

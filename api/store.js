@@ -1,91 +1,69 @@
 'use strict'
 
 const url = require('url')
-
 const AWS = require('aws-sdk')
 const S3 = new AWS.S3()
+const nanoid_locale = require('nanoid-good/locale/en')
+const nanoid = require('nanoid-good/async/generate')(nanoid_locale)
+const CHARACTERS = require('nanoid/url').replace(/[-_]/g, '')
 
-const config = require('../config.json')
+const { BUCKET, REGION, SHORT_URL } = process.env
 
-module.exports.handle = (event, context, callback) => {
+module.exports.handle = async (event, _context) => {
   let longUrl = JSON.parse(event.body).url || ''
-  validate(longUrl)
-    .then(function () {
-      return getPath()
-    })
-    .then(function (path) {
-      let redirect = buildRedirect(path, longUrl)
-      return saveRedirect(redirect)
-    })
-    .then(function (path) {
-      let response = buildResponse(200, 'URL successfully shortened', path)
-      return Promise.resolve(response)
-    })
-    .catch(function (err) {
-      let response = buildResponse(err.statusCode, err.message)
-      return Promise.resolve(response)
-    })
-    .then(function (response) {
-      callback(null, response)
-    })
+
+  return validate(longUrl)
+    .then(() => getPath())
+    .then(path => saveRedirect(buildRedirect(path, longUrl)))
+    .then(path => buildResponse(200, 'URL successfully shortened', path))
+    .catch(err => buildResponse(err.statusCode, err.message))
 }
 
-function validate (longUrl) {
-  if (longUrl === '') {
+async function validate(longUrl) {
+  if (!longUrl) {
     return Promise.reject({
       statusCode: 400,
       message: 'URL is required'
     })
   }
 
-  let parsedUrl = url.parse(longUrl)
-  if (parsedUrl.protocol === null || parsedUrl.host === null) {
+  const { protocol, host } = url.parse(longUrl)
+
+  if (!protocol || !host) {
     return Promise.reject({
       statusCode: 400,
       message: 'URL is invalid'
     })
   }
 
-  return Promise.resolve(longUrl)
+  return longUrl
 }
 
-function getPath () {
-  return new Promise(function (resolve, reject) {
-    let path = generatePath()
-    isPathFree(path)
-      .then(function (isFree) {
-        return isFree ? resolve(path) : resolve(getPath())
-      })
-  })
+async function getPath() {
+  return nanoid(CHARACTERS, 7).then(path =>
+    isPathFree(path).then(isFree => (isFree ? path : getPath()))
+  )
 }
 
-function generatePath (path = '') {
-  let characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  let position = Math.floor(Math.random() * characters.length)
-  let character = characters.charAt(position)
-
-  if (path.length === 7) {
-    return path
-  }
-
-  return generatePath(path + character)
+async function isPathFree(path) {
+  return S3.headObject(buildRedirect(path))
+    .promise()
+    .then(() => false)
+    .catch(err =>
+      err.code === 'NotFound' ? Promise.resolve(true) : Promise.reject(err)
+    )
 }
 
-function isPathFree (path) {
-  return S3.headObject(buildRedirect(path)).promise()
-    .then(() => Promise.resolve(false))
-    .catch((err) => err.code == 'NotFound' ? Promise.resolve(true) : Promise.reject(err))
+async function saveRedirect(redirect) {
+  return S3.putObject(redirect)
+    .promise()
+    .then(() => redirect['Key'])
 }
 
-function saveRedirect (redirect) {
-  return S3.putObject(redirect).promise()
-    .then(() => Promise.resolve(redirect['Key']))
-}
-
-function buildRedirect (path, longUrl = false) {
+function buildRedirect(path, longUrl = '') {
   let redirect = {
-    'Bucket': config.BUCKET,
-    'Key': path,
+    Bucket: BUCKET,
+    Key: path
   }
 
   if (longUrl) {
@@ -95,18 +73,13 @@ function buildRedirect (path, longUrl = false) {
   return redirect
 }
 
-function buildRedirectUrl (path) {
-  let baseUrl = `https://${config.BUCKET}.s3.${config.REGION}.amazonaws.com/`
-  
-  if ('BASE_URL' in config && config['BASE_URL'] !== '') {
-    baseUrl = config['BASE_URL']
-  }
-
-  return baseUrl + path
+function buildRedirectUrl(path) {
+  const baseUrl = SHORT_URL || `https://${BUCKET}.s3.${REGION}.amazonaws.com`
+  return `${baseUrl}/${path}`
 }
 
-function buildResponse (statusCode, message, path = false) {
-  let body = { message }
+function buildResponse(statusCode, message, path = '') {
+  const body = { message }
 
   if (path) {
     body['path'] = path
