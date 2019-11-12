@@ -59,3 +59,5 @@ _You can add a `?vanity=` query string parameter to the homepage to specify a va
 - [Serverless Framework](https://serverless.com) for project structure and deployment.
 - [PaperCSS Framework](https://github.com/papercss/papercss) for the frontend design.
 - [jQuery](https://jquery.com) to simplify working with the DOM and making AJAX queries.
+- [nanoid](https://github.com/ai/nanoid) to generate random paths with more randomness.
+- [nanoid-good](https://github.com/y-gagar1n/nanoid-good) to help avoid generating any obscene words.
