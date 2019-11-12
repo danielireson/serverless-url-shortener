@@ -43,14 +43,15 @@
     <script>
       $('form').submit(function(event) {
         event.preventDefault()
+        var vanity = new URL(location.href).searchParams.get('vanity')
         addMessage('...')
-        shortenLink(event.target.action, event.target.url.value)
+        shortenLink(event.target.action, event.target.url.value, vanity)
       })
 
-      function shortenLink(apiUrl, longUrl) {
+      function shortenLink(apiUrl, longUrl, vanity) {
         $.ajax(apiUrl, {
           type: 'POST',
-          data: JSON.stringify({ url: longUrl })
+          data: JSON.stringify({ url: longUrl, vanity: vanity })
         })
           .done(function(responseJSON) {
             var shortUrl =

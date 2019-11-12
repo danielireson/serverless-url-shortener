@@ -6,15 +6,16 @@ const S3 = new AWS.S3()
 const nanoid_locale = require('nanoid-good/locale/en')
 const nanoid = require('nanoid-good/async/generate')(nanoid_locale)
 const CHARACTERS = require('nanoid/url').replace(/[-_]/g, '')
+const PERMITTED = /^[0-9a-z-_]+$/i
 
 const { BUCKET, REGION, SHORT_URL } = process.env
 
 module.exports.handle = async (event, _context) => {
-  let longUrl = JSON.parse(event.body).url || ''
+  const { url, vanity } = JSON.parse(event.body)
 
-  return validate(longUrl)
-    .then(() => getPath())
-    .then(path => saveRedirect(buildRedirect(path, longUrl)))
+  return validate(url)
+    .then(() => getPath(vanity))
+    .then(path => saveRedirect(buildRedirect(path, url)))
     .then(path => buildResponse(200, 'URL successfully shortened', path))
     .catch(err => buildResponse(err.statusCode, err.message))
 }
@@ -39,10 +40,12 @@ async function validate(longUrl) {
   return longUrl
 }
 
-async function getPath() {
-  return nanoid(CHARACTERS, 7).then(path =>
-    isPathFree(path).then(isFree => (isFree ? path : getPath()))
-  )
+async function getPath(vanity) {
+  return Promise.resolve(
+    typeof vanity === 'string' && PERMITTED.test(vanity)
+      ? String(vanity)
+      : nanoid(CHARACTERS, 7)
+  ).then(path => isPathFree(path).then(isFree => (isFree ? path : getPath())))
 }
 
 async function isPathFree(path) {
@@ -60,7 +63,7 @@ async function saveRedirect(redirect) {
     .then(() => redirect['Key'])
 }
 
-function buildRedirect(path, longUrl = '') {
+function buildRedirect(path, longUrl) {
   let redirect = {
     Bucket: BUCKET,
     Key: path
@@ -78,7 +81,7 @@ function buildRedirectUrl(path) {
   return `${baseUrl}/${path}`
 }
 
-function buildResponse(statusCode, message, path = '') {
+function buildResponse(statusCode, message, path) {
   const body = { message }
 
   if (path) {
