@@ -1,0 +1,18 @@
+# See AliasTarget: https://docs.aws.amazon.com/de_de/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+# See https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region (below the first table for hosted zone ids / website endpoints of S3)
+Resources:
+  ClientDistributionRecordSetGroup:
+    Type: AWS::Route53::RecordSetGroup
+    DependsOn:
+      - ClientDistribution
+    Properties:
+      # See: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-dnshostname
+      HostedZoneId: !Ref DomainNameHostedZoneId
+      RecordSets:
+        - Name: !Ref DomainName
+          Type: A
+          AliasTarget:
+            # Hard-coded for CloudFront alias target
+            # See: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-route53.html
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt ClientDistribution.DomainName

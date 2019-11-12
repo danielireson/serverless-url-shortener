@@ -1,0 +1,63 @@
+# See https://blog.m-taylor.co.uk/2018/01/cloudformation-template-for-a-cloudfront-enabled-s3-website.html
+Resources:
+  ClientDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - ClientBucketResource
+      - ClientLoggingBucketResource
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: !Ref TargetOriginId
+            DomainName:
+              !Select [2, !Split ['/', !GetAtt ClientBucketResource.WebsiteURL]]
+            OriginPath: ''
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: http-only
+        Enabled: true
+        # For a custom domain
+        Aliases:
+          - !Ref DomainName
+        HttpVersion: http2
+        Comment: CDN for static website
+        # PriceClass: 'PriceClass_100'
+        PriceClass: PriceClass_All
+        DefaultRootObject: index.html
+        ## Since the Single Page App is taking care of the routing we need to make sure ever path is served with index.html
+        ## The only exception are files that actually exist e.h. app.js, reset.css
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: !Ref CustomErrorResponsePagePath
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: !Ref CustomErrorResponsePagePath
+        DefaultCacheBehavior:
+          AllowedMethods:
+            # - DELETE
+            - GET
+            - HEAD
+            - OPTIONS
+            # - PATCH
+            # - POST
+            # - PUT
+          Compress: true
+          ## The origin id defined above
+          TargetOriginId: !Ref TargetOriginId
+          ## Defining if and how the QueryString and Cookies are forwarded to the origin which in this case is S3
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          ## The protocol that users can use to access the files in the origin. To allow HTTP use `allow-all`
+          ViewerProtocolPolicy: redirect-to-https
+        ## The certificate to use when viewers use HTTPS to request objects.
+        ViewerCertificate:
+          SslSupportMethod: sni-only
+          AcmCertificateArn: !Ref ClientDistributionCertificate
+        Logging:
+          IncludeCookies: true
+          Bucket: !GetAtt ClientLoggingBucketResource.DomainName
+          Prefix: ''

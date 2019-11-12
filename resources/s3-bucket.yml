@@ -1,0 +1,16 @@
+Resources:
+  ClientBucketResource:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref BucketName
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        # ErrorDocument: !Ref CustomErrorResponsePagePath
+  ClientLoggingBucketResource:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref LogBucketName
+      AccessControl: Private

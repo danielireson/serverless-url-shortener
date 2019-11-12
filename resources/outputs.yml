@@ -1,0 +1,10 @@
+Outputs:
+  ClientDistributionId:
+    Description: CloudFront distribution id
+    Value: !Ref ClientDistribution
+  ClientDistributionDomainName:
+    Description: CloudFront distribution domain name
+    Value: !GetAtt ClientDistribution.DomainName
+  CustomDomainNameEndpoint:
+    Description: Custom domain used with CloudFront
+    Value: !Join ['', ['https://', !Ref DomainName]]
