@@ -111,7 +111,6 @@ resources:
         Type: String
         Default: ${env:SHORT_DOMAIN_ACM_ARN}
 
-  - ${file(./resources/cloudfront-origin-access-identity.yml)}
   - ${file(./resources/s3-bucket.yml)}
   - ${file(./resources/s3-policies.yml)}
   - ${file(./resources/dns-records.yml)}
