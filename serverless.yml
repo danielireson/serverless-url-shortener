@@ -1,4 +1,4 @@
-service: pony-url-shortener
+service: serverless-url-shortener
 
 plugins:
   - serverless-webpack
