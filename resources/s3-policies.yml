@@ -1,0 +1,17 @@
+Resources:
+  ClientBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DependsOn:
+      - ClientBucketResource
+    Properties:
+      Bucket: !Ref ClientBucketResource
+      PolicyDocument:
+        Statement:
+          # - Sid: PublicReadForGetBucketObjects
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action:
+              - s3:GetObject
+            Resource:
+              !Join ['', ['arn:aws:s3:::', !Ref ClientBucketResource, '/*']]

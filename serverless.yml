@@ -1,44 +1,118 @@
 service: serverless-url-shortener
 
+plugins:
+  - serverless-webpack
+  - serverless-finch
+  - serverless-cloudfront-invalidate
+  - serverless-plugin-reducer
+  - serverless-domain-manager
+  - serverless-scriptable-plugin
+
+package:
+  individually: true
+
 provider:
   name: aws
-  endpointType: ${file(config.json):API_ENDPOINT_TYPE}
-  runtime: nodejs8.10
-  stage: ${file(config.json):STAGE}
-  region: ${file(config.json):REGION}
+  endpointType: edge
+  runtime: nodejs10.x
+  stage: ${opt:stage, 'staging'}
+  region: ${env:REGION}
+  profile: ${env:AWS_PROFILE}
+  memorySize: 128
+  timeout: 30
+  tracing:
+    apiGateway: true
+    lambda: true
+  environment:
+    API_URL: ${env:API_URL}
+    API_DOMAIN: ${env:API_DOMAIN}
+    SHORT_URL: ${env:SHORT_URL}
+    SHORT_DOMAIN: ${env:SHORT_DOMAIN}
+    REGION: ${env:REGION}
+    BUCKET: ${self:custom.bucketBaseName}-origin
   iamRoleStatements:
     - Effect: Allow
       Action:
         - s3:PutObject
-      Resource: "arn:${file(config.json):S3_PARTITION}:s3:::${file(config.json):BUCKET}/*"
+      Resource: 'arn:aws:s3:::${self:provider.environment.BUCKET}/*'
+
+custom:
+  bucketBaseName: ${self:service}-${self:provider.stage}
+  scriptHooks:
+    before:deploy:deploy:
+      - sls create_domain -v -s ${self:provider.stage}
+    before:client:deploy:deploy:
+      - STAGE=${self:provider.stage} API_URL=${env:API_URL} yarn build
+    after:deploy:finalize:
+      - echo Y | sls client deploy -v -s ${self:provider.stage}
+    after:client:deploy:deploy:
+      - sls cloudfrontInvalidate -v -s ${self:provider.stage}
+  webpack:
+    webpackConfig: webpack.config.js
+    packager: yarn
+    includeModules: false
+    # excludeFiles:
+  cloudfrontInvalidate:
+    # Output key
+    distributionIdKey: ClientDistributionId
+    items:
+      - /
+      - /index.html
+  customDomain:
+    domainName: ${env:API_DOMAIN}
+    certificateName: ${env:API_CERTIFICATE_NAME}
+    hostedZoneId: ${env:API_HOSTED_ZONE}
+    createRoute53Record: true
+    endpointType: edge
+    basePath: ${env:API_BASE_ENDPOINT}
+  client:
+    manageResources: false
+    bucketName: ${self:provider.environment.BUCKET}
+    distributionFolder: ./build/
+    # objectHeaders:
+    #   # Don't cache index so invalidation is not necessary
+    #   # See: https://github.com/fernando-mc/serverless-finch/issues/40#issuecomment-406274331
+    #   '*.html':
+    #     - name: Cache-Control
+    #       value: no-cache
+    #   ALL_OBJECTS:
 
 functions:
   store:
     handler: api/store.handle
     events:
       - http:
-          path: /
+          path: /store
           method: post
           cors: true
 
+# See: https://github.com/sprockow/serverless-finch-example
 resources:
-  Resources:
-    ServerlesslyRedirectS3Bucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${file(config.json):BUCKET}
-        AccessControl: PublicRead
-        WebsiteConfiguration:
-          IndexDocument: index.html
-    ServerlesslyRedirectS3BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket: ${file(config.json):BUCKET}
-        PolicyDocument:
-          Statement:
-          - Action:
-            - s3:GetObject
-            Effect: Allow
-            Resource:
-            - arn:${file(config.json):S3_PARTITION}:s3:::${file(config.json):BUCKET}/*
-            Principal: "*"
+  - Parameters:
+      BucketName:
+        Type: String
+        Default: ${self:provider.environment.BUCKET}
+      LogBucketName:
+        Type: String
+        Default: ${self:custom.bucketBaseName}-logs
+      TargetOriginId:
+        Type: String
+        Default: ${self:custom.bucketBaseName}-target
+      DomainName:
+        Type: String
+        Default: ${env:SHORT_DOMAIN}
+      DomainNameHostedZoneId:
+        Type: String
+        Default: ${env:SHORT_HOSTED_ZONE}
+      CustomErrorResponsePagePath:
+        Type: String
+        Default: /index.html
+      ClientDistributionCertificate:
+        Type: String
+        Default: ${env:SHORT_DOMAIN_ACM_ARN}
+
+  - ${file(./resources/s3-bucket.yml)}
+  - ${file(./resources/s3-policies.yml)}
+  - ${file(./resources/dns-records.yml)}
+  - ${file(./resources/cf-distribution.yml)}
+  - ${file(./resources/outputs.yml)}

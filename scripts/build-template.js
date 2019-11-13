@@ -3,21 +3,28 @@
 const fs = require('fs')
 const path = require('path')
 
-const config = require('../config.json')
+const { API_URL, TITLE, CREDIT, CREDIT_URL } = process.env
 
 try {
-  let readPath = path.resolve(__dirname, '../static/template.html')
-  let template = fs.readFileSync(readPath).toString()
-  template = template.replace('INSERT_API_URL', config['API_URL'])
+  const readPath = path.resolve(__dirname, '../src/template.html')
+  const template = fs.readFileSync(readPath).toString()
 
-  let writePath = path.resolve(__dirname, '../static/index.html')
-  fs.writeFileSync(writePath, template)  
+  const writePath = path.resolve(__dirname, '../build/index.html')
+  fs.writeFileSync(
+    writePath,
+    template
+      .replace(/INSERT_API_URL/g, API_URL)
+      .replace(/INSERT_TITLE/g, TITLE || 'serverless url shortener')
+      .replace(
+        /INSERT_CREDIT_URL/g,
+        CREDIT_URL || 'https://github.com/danielireson/serverless-url-shortener'
+      )
+      .replace(/INSERT_CREDIT/g, CREDIT || 'View this project on Github')
+  )
 
   console.log('Template build success')
-
 } catch (error) {
   console.error('Template build error')
   console.error('---')
   console.error(error.message)
-
 }
