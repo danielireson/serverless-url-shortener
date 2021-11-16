@@ -16,7 +16,7 @@
     ]
   },
   "dependencies": {
-    "aws-sdk": "^2.569.0",
+    "aws-sdk": "^2.814.0",
     "nanoid": "^2.1.6",
     "nanoid-good": "^1.3.0"
   },
